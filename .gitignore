@@ -1,4 +1,5 @@
-.terraform
-*.tfstate
-*.tfstate.backup
+# Ignore all terraform files except the lock file
+**/.terraform/*
+**/*.tfstate
+**/*.tfstate.*
 
