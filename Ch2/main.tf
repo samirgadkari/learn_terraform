@@ -82,3 +82,13 @@ resource "aws_instance" "example" {
   }
 }
 
+# We deployed these resources in the default VPC, and the default subnets of that VPC.
+# Each VPC is partitioned into one or more subnets. The subnets in the default VPC are all
+# public subnets. This is why we can connect to our EC2 instance from any laptop.
+# This is a security vulnerability. We should never deploy our production resources on a
+# public subnet.
+#
+# For production, we should create a private VPC and subnets within it. These IP addresses
+# can then be accessible from within the same VPC. The only servers that should be accessible
+# from public IP addresses are the load balancers. These you should run in a public subnet
+# and lock down as much as possible.
