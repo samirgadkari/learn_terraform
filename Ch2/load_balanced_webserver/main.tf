@@ -45,6 +45,9 @@ resource "aws_instance" "example" {
                                                             # "terraform graph" shows the dependency graph.
                                                             # Use Graphviz to display it.
   
+  # You cannot have comments between the <<-EOF and EOF below, if you're interpolating
+  # variables using $ sign. This is why we moved these comments before the user_data
+  # section.
   # busybox provides a suite of unix utilities, including httpd, the web server.
   # user_data points to the shell script to run after instance boots up.
   # nohup command & causes command to run forever, in the background.
