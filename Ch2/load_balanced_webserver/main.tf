@@ -14,6 +14,7 @@ variable "server_port" {
   default     = 8080
 }
 
+# Security settings for all EC2 instances in the group.
 resource "aws_security_group" "instance" {
   name = "terraform-example-instance"
 
