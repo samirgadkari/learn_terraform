@@ -24,4 +24,73 @@ provider "aws" {
   region = "us-east-2"
 }
 
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "ex-terraform-state-bucket"  # this must be unique across ALL S3 users
+  
+  # Prevent accidental destruction of this bucket with "terraform destroy".
+  # To really delete this bucket, comment this out and then run "terraform destroy".
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  # Enable versioning of the state file, so we can rollback to any version
+  versioning {
+    enabled = true
+  }
+
+  # Enable server-side encryption by default for all data in this bucket.
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+# Create a DynamoDB table for locking. DynamoDB is AWS key-value store.
+# To use it for terraform, create a table with primary key LockID (exact spelling/capitalization).
+resource "aws_dynamodb_table" "terraform_locks" {
+  name            = "ex-terraform-locks-table"
+  billing_mode    = "PAY_PER_REQUEST"
+  hash_key        = "LockID"
+  
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
+# Run terraform init, and terraform apply. This creates the above resources.
+# After that, your still have to tell terraform to use the remote backend
+# to store state. So do this:
+#
+terraform {
+  backend "s3" {   # Name of the backend is s3
+    bucket         = "ex-terraform-state-bucket"
+    key            = "golbal/s3/terraform.tfstate" # filepath within bucket where tfstate is stored.
+    region         = "us-east-2"
+
+    dynamodb_table = "ex-terraform-locks-table"
+    encrypt        = true  # Additional check to ensure encryption on save.
+			   # We have already enabled default encryption in the S3 bucket itself.
+  }
+}
+
+# Now run terraform init again. This will cause terraform to save state in your S3 bucket.
+# terraform init now:
+#   - downloads provider code that it needs
+#   - configures terraform backend.
+
+# To see the S3 bucket and table terraform is using:
+output "s3_bucket_arn" {
+  value       = aws_s3_bucket.terraform_state.arn
+  description = "ARN of the S3 bucket"
+}
+
+output "dynamodb_table_name" {
+  value       = aws_dynamodb_table.terraform_locks.name
+  description = "DynamoDB table name"
+}
+
 
