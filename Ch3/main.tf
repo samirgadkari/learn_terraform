@@ -67,13 +67,9 @@ resource "aws_dynamodb_table" "terraform_locks" {
 #
 terraform {
   backend "s3" {   # Name of the backend is s3
-    bucket         = "ex-terraform-state-bucket"
+    # backend.hcl file parameters will be added here when you issue the command:
+    # terraform init -backend-config=backend.hcl
     key            = "golbal/s3/terraform.tfstate" # filepath within bucket where tfstate is stored.
-    region         = "us-east-2"
-
-    dynamodb_table = "ex-terraform-locks-table"
-    encrypt        = true  # Additional check to ensure encryption on save.
-			   # We have already enabled default encryption in the S3 bucket itself.
   }
 }
 
@@ -93,4 +89,20 @@ output "dynamodb_table_name" {
   description = "DynamoDB table name"
 }
 
+# Limitations of backends is that to create the backend:
+#   - add the code to add bucket and dynamodb table first,
+#   - issue terraform init, terraform apply to create the bucket/dynamodb using local
+#     terraform.tfstate file.
+#   - add a remote backend in the code, and apply the terraform init command to copy the
+#     local terraform.tfstate file to the S3 bucket.
+# Once the bucket and table exist, you can start adding code to create the backend.
+# You should use a different backend path for different projects.
+# To destroy everything, do this sequence in reverse:
+#   - Remove the backend config in *.tf files, apply the terraform init command to copy the
+#     remote backend terraform.tfstate to your local disk
+#   - Run terraform destroy to delete the S3 bucket and dynamodb table.
+
+# The backend block in terraform does not allow you to use any variables or references.
+# Instead, use the partial configuration (omit certain parameters from the backend config block,
+# and pass a file path (backend.hcl) to those parameters on the command line for terraform init).
 
