@@ -70,6 +70,8 @@ terraform {
     # backend.hcl file parameters will be added here when you issue the command:
     # terraform init -backend-config=backend.hcl
     key            = "golbal/s3/terraform.tfstate" # filepath within bucket where tfstate is stored.
+						   # This will be different for each project,
+						   # so it is kept here.
   }
 }
 

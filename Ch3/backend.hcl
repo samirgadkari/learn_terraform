@@ -6,6 +6,8 @@
 #       # these parameters are added here
 #     }
 #   }
+# The backend.hcl file should be moved into a directory like "common",
+# so that users will know that this file data is used in more than one place.
 bucket         = "ex-terraform-state-bucket"
 region         = "us-east-2"
 
