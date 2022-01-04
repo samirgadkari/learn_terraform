@@ -41,7 +41,7 @@ resource "aws_instance" "example" {
 }
 
 # Issue the commands:
-#   terraform init -backend-config=./backend.hcl
+#   terraform init -backend-config=../backend.hcl
 #   terraform plan
 #   terraform apply
 #   terraform workspace show  # You see the default workspace. When you select the S3 bucket,
