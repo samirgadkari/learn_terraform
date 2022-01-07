@@ -1,7 +1,7 @@
 
 # To see the S3 bucket and table terraform is using:
 output "s3_bucket_arn" {
-  value       = aws_s3_bucket.terraform_state.arn
+  value       = aws_s3_bucket.ex-terraform-state-bucket.arn
   description = "ARN of the S3 bucket"
 }
 

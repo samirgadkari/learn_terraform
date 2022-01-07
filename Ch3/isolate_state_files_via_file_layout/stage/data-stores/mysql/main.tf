@@ -8,10 +8,9 @@ resource "aws_db_instance" "example" {
   allocated_storage    = 10
   instance_class       = "db.t2.micro"
   name                 = "example_database"
-  username             = "admin"
 
-  # password             = "1053099tickets"
-  password             = data.aws_secretsmanager_secret_version.db_password.secret_string
+  username             = local.db_creds.username
+  password             = local.db_creds.password
 
   # Required to get around a bug in AWS
   skip_final_snapshot = true
@@ -31,11 +30,13 @@ terraform {
   }
 }
 
-# Uncomment out the password = "1053..." above. Comment out the password = data.aws...
-# Comment out the aws_secretsmanager_secret_version.db_password below.
-# Run terraform init and terraform apply to create the database above.
-# Then go into the AWS secrets manager, and create a secret for this database.
-# Then uncomment the code below, and the password commented out in the above aws_db_instance.
-data "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = "mysql_master_password_stage"
+data "aws_secretsmanager_secret_version" "creds" {
+  secret_id = "mysql_master_pwd_stage"
 }
+
+locals {
+  db_creds = jsondecode(
+    data.aws_secretsmanager_secret_version.creds.secret_string
+  )
+}
+
